@@ -1,0 +1,41 @@
+<div class="container">
+  <div class="mx-auto mt-3">
+    <form [formGroup]="form">
+      <div class="card">
+        <div class="card-body px-4">
+          <h5 class="card-title">Profile</h5>
+
+          <div class="mb-3">
+            <label for="firstName" class="form-label">First Name</label>
+            <input type="text" class="form-control" id="firstName" formControlName="firstName" />
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" formControlName="email" />
+          </div>
+
+          <div class="mb-3">
+            <label for="age" class="form-label">Age</label>
+            <input type="age" class="form-control" id="age" formControlName="age" />
+          </div>
+
+
+          <div class="mb-3">
+            <label for="old" class="form-label">Old</label>
+            <input type="old" class="form-control" id="old" formControlName="old" />
+          </div>
+
+          <div class="mb-3">
+            <label for="lastName" class="form-label">Last Name</label>
+            <input type="text" class="form-control" id="lastName" formControlName="lastName" />
+          </div>
+
+          <div class="mt-4 d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
