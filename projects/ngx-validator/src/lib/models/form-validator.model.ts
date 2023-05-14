@@ -18,6 +18,7 @@ export interface FormEvent {
 export interface FormValidatorConfig {
   skipValidate?: boolean;
   defaultErrorMessage?: ErrorMessage;
+  unknownErrorMessage?: string;
   validationMessagesComponent?: Type<BaseValidationMessagesComponent>;
   validateOn?: (status: { dirty: boolean; touched: boolean; submited: boolean }) => boolean;
 }

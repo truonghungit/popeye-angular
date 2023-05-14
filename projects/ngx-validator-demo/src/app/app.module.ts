@@ -7,8 +7,8 @@ import { FormValidatorModule, FormValidatorConfig } from 'projects/ngx-validator
 import { ReactiveFormsModule } from '@angular/forms';
 
 const formValidatorConfig: FormValidatorConfig = {
-  validateOn: ({ submited }) => {
-    return submited;
+  validateOn: ({ dirty, touched, submited }) => {
+    return (dirty && touched) || submited;
   }
 }
 

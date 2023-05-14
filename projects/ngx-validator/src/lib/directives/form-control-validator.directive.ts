@@ -1,7 +1,7 @@
 import { AfterViewInit, ApplicationRef, ChangeDetectorRef, ComponentRef, Directive, ElementRef, EmbeddedViewRef, HostListener, Inject, Injector, Input, OnDestroy, Optional, Renderer2, SkipSelf, TemplateRef, Type, ViewContainerRef } from '@angular/core';
 import { FormGroupDirective, NgControl, ValidationErrors } from '@angular/forms';
 import { map, merge, Subject, Subscription } from 'rxjs';
-import { distinctUntilChanged, skipWhile, tap } from 'rxjs/operators';
+import { skipWhile } from 'rxjs/operators';
 
 import { FormGroupValidatorDirective } from './form-group-validator.directive';
 import { FORM_VALIDATOR_CONFIGURATION } from '../form-validator-token';
@@ -67,7 +67,6 @@ export class FormControlValidatorDirective implements AfterViewInit, OnDestroy {
 
   private _subscriptions = new Subscription();
   private _errorRef: ComponentRef<BaseValidationMessagesComponent> | EmbeddedViewRef<any> | null = null;
-  private _submited: boolean = false;
   private _events$ = new Subject<FormEvent>()
 
   constructor(
@@ -76,7 +75,6 @@ export class FormControlValidatorDirective implements AfterViewInit, OnDestroy {
     private readonly control: NgControl,
     private readonly elementRef: ElementRef,
     private readonly viewContainerRef: ViewContainerRef,
-    private readonly renderer: Renderer2,
 
     @Optional()
     private containerRef: ValidatorContainerDirective,
@@ -118,22 +116,19 @@ export class FormControlValidatorDirective implements AfterViewInit, OnDestroy {
     let _cachedErrors = '';
 
     const sub = merge(this.parent.events$, this._events$).pipe(
-      tap(event => console.log(`event control ${this.control.name}:`, event)),
       skipWhile(() => this.skipValidate),
       map(() => this.formatErrors()),
     ).subscribe((errors) => {
-      // console.log('error ne', errors);
-      // if (_cachedErrors === JSON.stringify(errors)) {
-      //   return;
-      // }
+      if (_cachedErrors === JSON.stringify(errors)) {
+        return;
+      }
 
-      // console.log('show hide error');
-
-      this.removeErrors();
+      this.removeValidationErrors();
       if (this.shouldShowValidate(errors)) {
         _cachedErrors = JSON.stringify(errors);
-        console.log('show error');
-        this.insertErrors(errors);
+        this.showValidationErrors(errors);
+      } else {
+        _cachedErrors = '';
       }
     });
 
@@ -144,8 +139,6 @@ export class FormControlValidatorDirective implements AfterViewInit, OnDestroy {
     if (errors.length <= 0) {
       return false;
     }
-
-    console.log('should show validate control', this.control.name, { dirty: this.control.dirty, touched: this.control.touched, submitted: this.formGroupDirective.submitted });
 
     if (!this.config.validateOn || typeof this.config.validateOn !== 'function') {
       return true;
@@ -188,17 +181,17 @@ export class FormControlValidatorDirective implements AfterViewInit, OnDestroy {
       return mapReplace(this.config.defaultErrorMessage[key], errors[key])
     }
 
-    return '[This field is invalid]';
+    return this.config.unknownErrorMessage || '[This field is invalid]';
   }
 
-  private removeErrors(): void {
+  private removeValidationErrors(): void {
     if (this._errorRef) {
       this._errorRef.destroy();
       this._errorRef = null;
     }
   }
 
-  private insertErrors(errors: Array<FormatedError>) {
+  private showValidationErrors(errors: Array<FormatedError>) {
     const viewContainerRef = this.getViewContainerRef();
 
     if (this.validationMessageTemplateRef && this.validationMessageTemplateRef instanceof TemplateRef) {
